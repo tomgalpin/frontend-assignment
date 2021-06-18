@@ -1,3 +1,11 @@
+# Notes:
+- Admittedly I did not finish writing test because I could not figure out how to write tests for `app.js` and `movies-grid.js`, and the use of the `IntersectionObserver` therein.  Also, I ran out of energy trying to figure it out.
+- I wanted to implement "infinite scroll" to load the movies, without the use of a library.
+- Some additional error handling and search edge cases should be added as well.
+- I was a bit confused on how large to make the "cards" with the movie posters, specifically to have a standard width or have the widths be dynamic.  The designs were a bit confusing here.  I made a choice for dynamic widths.
+- There were a few other, small questions I had from the designs that I made choices on.  E.g. paddings, margins, etc...
+
+
 # Timescale Frontend Interview Assignment
 
 Thank you for taking the time to apply for a front end position at Timescale!

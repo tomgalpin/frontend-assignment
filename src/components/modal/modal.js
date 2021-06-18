@@ -9,15 +9,22 @@ import {
   StyledContent,
 } from "components/modal/styled-modal";
 import close from "assets/images/icons/close.svg";
+import moment from "moment";
 
 const Modal = (props) => {
+  const readableDate = (date) => {
+    const formattedDate = moment(date).format("MMMM DD, YYYY");
+
+    return formattedDate;
+  };
+
   return (
-    <StyledModal showModal={props.showModal}>
-      <StyledModalCover onClick={props.toggleModal} />
+    <StyledModal hasModal={props.hasModal} data-testid="modal">
+      <StyledModalCover onClick={props.hideModal} />
       <StyledModalContent>
         <StyledHeader>
           <p>{props.content.title}</p>
-          <button onClick={props.toggleModal}>
+          <button onClick={props.hideModal}>
             <img src={close} alt="Close modal button" />
           </button>
         </StyledHeader>
@@ -28,7 +35,7 @@ const Modal = (props) => {
           <StyledContent>
             <p>
               <span>Release date: </span>
-              {props.content.date}
+              {readableDate(props.content.date)}
             </p>
             <p>{props.content.overview}</p>
             <p>

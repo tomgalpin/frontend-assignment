@@ -4,7 +4,7 @@ import { StyledHeader } from "components/header/styled-header";
 
 const Header = (props) => {
   return (
-    <StyledHeader>
+    <StyledHeader data-testid="header">
       <a href="https://www.timescale.com/" target="_blank" rel="noreferrer">
         <img src={logo} alt="Timescale" />
       </a>

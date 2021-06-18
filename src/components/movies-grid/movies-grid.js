@@ -1,61 +1,64 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { StyledMoviesGrid } from "components/movies-grid/styled-movies-grid";
 import EmptyMovieFallback from "assets/images/empty-poster-fallback.svg";
-import useInfiniteScroll from "hooks/useInfiniteScroll";
-
 import Movie from "components/movie/movie";
 
 const MoviesGrid = (props) => {
-  const env = process.env;
-  const apiKey = env.REACT_APP_MOVIE_DB_API_KEY;
-  const baseUrl = env.REACT_APP_API_DOMAIN;
-  const imgUrl = env.REACT_APP_API_BASE_IMAGE_URL;
-
+  const imgUrl = process.env.REACT_APP_API_BASE_IMAGE_URL;
   const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [currPage, setCurrPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isFetching, setIsFetching] = useState(false);
-
-  // const [isFetching, setIsFetching] = useInfiniteScroll(getMoreMovies);
-
-  // const [hasMore, setHasMore] = useState(false);
-  // console.log(movies);
-  const mostRecent = `${baseUrl}/movie/now_playing?api_key=${apiKey}&language=en-US&page=${currPage}`;
-
-  // const showMovieModal = (content) => {
-  //   console.log(content);
-  // };
+  const observer = useRef(null);
 
   useEffect(() => {
-    axios.get(mostRecent).then((response) => {
-      // const nextPage = response.data.page + 1;
-      // console.log("page: ", response.data.page);
-      // console.log("total pages: ", response.data.total_pages);
-      // console.log("total results: ", response.data.total_results);
-      setMovies(response.data.results);
-      setCurrPage(response.data.page + 1);
-      setTotalPages(response.data.total_pages);
-    });
-  }, []);
+    if (props.initNewSearch) setHasMore(true);
 
-  function getMoreMovies() {
-    if (currPage !== totalPages) {
-      setTimeout(() => {
-        axios
-          .get(mostRecent)
-          .then((response) => {
-            const nextPage = response.data.page + 1;
-            setMovies((prev) => [...prev, ...response.data.results]);
-            setCurrPage(nextPage);
-          })
-          .then(setIsFetching(false));
-        console.log("get more movies");
-      }, 2000);
-    } else {
-      console.log("no more movies");
-    }
-  }
+    getMovies(currPage, props.initNewSearch);
+    setCurrPage((prev) => prev + 1);
+  }, [props.getUrl]);
+
+  const observerRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          if (currPage < totalPages) {
+            getMovies(currPage, false);
+            setHasMore(true);
+            setCurrPage((prev) => prev + 1);
+          } else {
+            setHasMore(false);
+          }
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore]
+  );
+
+  const getMovies = async (page, initNewSearch) => {
+    const pageNum = initNewSearch ? 1 : page;
+    const url = `${props.getUrl}${pageNum}`;
+
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    await axios.get(url).then((response) => {
+      const moviesList = initNewSearch
+        ? response.data.results
+        : [...movies, ...response.data.results];
+
+      setMovies(moviesList);
+      setTotalPages(response.data.total_pages);
+      setIsLoading(false);
+    });
+  };
 
   const renderMovies = (movies) => {
     return movies.map((item, index) => {
@@ -73,20 +76,21 @@ const MoviesGrid = (props) => {
 
       return (
         <Movie
-          key={modalContent.id}
+          key={index}
           poster={modalContent.poster}
           title={modalContent.title}
           vote={modalContent.vote}
-          showMovieModal={() => props.showMovieModal(modalContent)}
+          showModal={() => props.showModal(modalContent)}
         />
       );
     });
   };
 
   return (
-    <StyledMoviesGrid>
+    <StyledMoviesGrid data-testid="movies-grid">
       {renderMovies(movies)}
-      <div>{isFetching && "Fetching more list items..."}</div>
+      <div>{isLoading && "Loading Movies......"}</div>
+      <div ref={observerRef} />
     </StyledMoviesGrid>
   );
 };

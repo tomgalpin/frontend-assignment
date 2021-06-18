@@ -5,9 +5,9 @@ import {
   StyledTitle,
 } from "components/movie/styled-movie";
 
-const Movie = ({ poster, title, vote, showMovieModal }) => {
+const Movie = ({ poster, title, vote, showModal }) => {
   return (
-    <StyledMovie onClick={showMovieModal}>
+    <StyledMovie onClick={showModal} data-testid="movie">
       <StyledPoster>
         <img src={poster} alt={title} />
         <StyledVote>

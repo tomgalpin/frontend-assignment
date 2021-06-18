@@ -12,7 +12,9 @@ const StyledSearchTitle = styled.h3`
 `;
 
 const SearchTitle = ({ title }) => {
-  return <StyledSearchTitle>{title}</StyledSearchTitle>;
+  return (
+    <StyledSearchTitle data-testid="search-title">{title}</StyledSearchTitle>
+  );
 };
 
 export default SearchTitle;

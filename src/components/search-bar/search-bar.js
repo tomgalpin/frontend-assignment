@@ -6,7 +6,7 @@ const SearchBar = (props) => {
   const [formValue, setFormValue] = useState("");
 
   return (
-    <StyledSearchBar>
+    <StyledSearchBar data-testid="search-bar">
       <img src={searchIcon} alt="Search icon" />
       <form onSubmit={(e) => props.handleSubmit(e, formValue)}>
         <input
